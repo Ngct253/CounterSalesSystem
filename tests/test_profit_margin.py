@@ -15,23 +15,22 @@ def validate_margin(new_price, wac):
         return False, "Price exceeds max $999,999.99"
     return True, "OK"
 
-# Dữ liệu tương ứng với bảng bạn gửi
 profit_cases = [
-    ("ProfMar-001", 30, 100, True),        # Pass
-    ("ProfMar-002", 29.99, 100, False),    # Fail
-    ("ProfMar-003", 30.01, 100, True),     # Pass
-    ("ProfMar-004", 999999, 100, False),   # Fail do vượt max currency
-    ("ProfMar-005", -50, 100, False),      # Fail negative
-    ("ProfMar-006", 0, 100, False),        # Fail zero
-    # DAT ON/OFF/IN min profit
-    ("ProfMar-007-IN", 0, 100, False),     # Fail
-    ("ProfMar-007-OFF-below", 29, 100, False), # Fail
-    ("ProfMar-007-ON", 30, 100, True),     # Pass
-    ("ProfMar-007-OFF-above", 31, 100, True), # Pass
-    ("ProfMar-008", -100, 100, False),     # Fail min currency
-    ("ProfMar-009", 100, 500000, False),   # Fail exceed currency
-    ("ProfMar-010", 100, 499999.995, True) # Pass exact max
+    ("ProfMar-001", 30, 100, True, "OK"),
+    ("ProfMar-002", 29.99, 100, False, "Must make at least 30% profit"),
+    ("ProfMar-003", 30.01, 100, True, "OK"),
+    ("ProfMar-004", 999999, 100, False, "Price exceeds max $999,999.99"),
+    ("ProfMar-005", -50, 100, False, "Must make at least 30% profit"),
+    ("ProfMar-006", 0, 100, False, "Must make at least 30% profit"),
+    ("ProfMar-007-IN", 0, 100, False, "Must make at least 30% profit"),
+    ("ProfMar-007-OFF-below", 29, 100, False, "Must make at least 30% profit"),
+    ("ProfMar-007-ON", 30, 100, True, "OK"),
+    ("ProfMar-007-OFF-above", 31, 100, True, "OK"),
+    ("ProfMar-008", -100, 100, False, "Price below $0"),
+    ("ProfMar-009", 100, 500000, False, "Price exceeds max $999,999.99"),
+    ("ProfMar-010", 100, 499999.995, True, "OK")
 ]
+
 
 @pytest.mark.parametrize("tc_id, margin, wac, expected_valid", profit_cases)
 def test_profit_margin(tc_id, margin, wac, expected_valid):
