@@ -32,9 +32,10 @@ profit_cases = [
 ]
 
 
-@pytest.mark.parametrize("tc_id, margin, wac, expected_valid", profit_cases)
-def test_profit_margin(tc_id, margin, wac, expected_valid):
+@pytest.mark.parametrize("tc_id, margin, wac, expected_valid, expected_msg", profit_cases)
+def test_profit_margin(tc_id, margin, wac, expected_valid, expected_msg):
     new_price = calc_new_price(wac, margin)
     valid, msg = validate_margin(new_price, wac)
     print(f"{tc_id} | Margin: {margin} | WAC: {wac} | New Price: {new_price} | Result: {msg}")
     assert valid == expected_valid
+    assert msg == expected_msg
