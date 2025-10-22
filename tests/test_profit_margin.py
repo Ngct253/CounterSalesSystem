@@ -2,7 +2,7 @@ import pytest
 
 # Profit Margin calculation: New Price = WAC * (1 + Margin%)
 def calc_new_price(wac, margin_percent):
-    return round(wac * (1 + margin_percent/100), 2)
+    return round(wac * (1 + margin_percent / 100), 2)
 
 # Mock validation
 def validate_margin(new_price, wac):
@@ -16,25 +16,26 @@ def validate_margin(new_price, wac):
     return True, "OK"
 
 profit_cases = [
-    ("ProfMar-001", 30, 100),       # min 30%
-    ("ProfMar-002", 29.99, 100),    # invalid <30
-    ("ProfMar-003", 30.01, 100),    # just above 30%
-    ("ProfMar-004", 999999, 100),   # very high margin
-    ("ProfMar-005", -50, 100),      # negative margin
-    ("ProfMar-006", 0, 100),        # zero margin
-    ("ProfMar-007", 0, 100),        # DAT IN/ON/OFF multiple checks
-    ("ProfMar-008", -100, 100),     # currency min 0
-    ("ProfMar-009", 100, 500000),   # exceed currency max
-    ("ProfMar-010", 100, 499999.995) # exact max
+    # tc_id, margin, wac, expected_valid
+    ("ProfMar-001", 30, 100, True),
+    ("ProfMar-002", 29.99, 100, False),
+    ("ProfMar-003", 30.01, 100, True),
+    ("ProfMar-004", 999999, 100, False),   # exceeds max currency
+    ("ProfMar-005", -50, 100, False),
+    ("ProfMar-006", 0, 100, False),
+    # DAT ON/OFF/IN min profit
+    ("ProfMar-007-IN", 30, 100, True),
+    ("ProfMar-007-OFF-below", 29, 100, False),
+    ("ProfMar-007-ON", 30, 100, True),
+    ("ProfMar-007-OFF-above", 31, 100, True),
+    ("ProfMar-008", -100, 100, False),
+    ("ProfMar-009", 100, 500000, False),   # exceed currency max
+    ("ProfMar-010", 100, 499999.995, True) # exact max
 ]
 
-@pytest.mark.parametrize("tc_id, margin, wac", profit_cases)
-def test_profit_margin(tc_id, margin, wac):
+@pytest.mark.parametrize("tc_id, margin, wac, expected_valid", profit_cases)
+def test_profit_margin(tc_id, margin, wac, expected_valid):
     new_price = calc_new_price(wac, margin)
     valid, msg = validate_margin(new_price, wac)
     print(f"{tc_id} | Margin: {margin} | WAC: {wac} | New Price: {new_price} | Result: {msg}")
-    # TC 002,005,006,008,009 expected invalid
-    if tc_id in ["ProfMar-002", "ProfMar-005", "ProfMar-006", "ProfMar-008", "ProfMar-009", "ProfMar-004"]:
-        assert not valid
-    else:
-        assert valid
+    assert valid == expected_valid
